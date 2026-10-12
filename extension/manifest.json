@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "DomTack",
   "version": "0.1.0",
-  "description": "Pin any element of a web page for your coding agent: copies its screenshot and full context. Works in iframes and session replays.",
+  "description": "Pin any element of a web page for your coding agent: copies its screenshot and full context. No network requests.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
