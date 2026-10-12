@@ -1,0 +1,39 @@
+{
+  "name": "domtack",
+  "version": "0.1.0",
+  "description": "Pin any element of a web page for your coding agent: screenshot, selector, HTML and context. CLI, MCP server and native host for the DomTack browser extension.",
+  "keywords": [
+    "browser-extension",
+    "native-messaging",
+    "mcp",
+    "coding-agent",
+    "claude-code",
+    "screenshot",
+    "dom"
+  ],
+  "author": "Simon Robert <domtack@srob.fr>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srobfr/domtack.git"
+  },
+  "homepage": "https://github.com/srobfr/domtack#readme",
+  "bugs": {
+    "url": "https://github.com/srobfr/domtack/issues"
+  },
+  "bin": {
+    "domtack": "bin/domtack.js"
+  },
+  "files": [
+    "bin/domtack.js",
+    "skill/SKILL.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/domtack.test.js",
+    "build": "node scripts/build.js",
+    "check": "npm test && npm run build && npx --yes web-ext@10.7.0 lint --source-dir extension"
+  }
+}

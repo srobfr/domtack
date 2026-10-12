@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "DomTack",
+  "version": "0.1.0",
+  "description": "Pin any element of a web page for your coding agent: copies its screenshot and full context. Works in iframes and session replays.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmO77oleGx7NhxJK+3aUKWbXnMsmpTAmhnovaEBxMiwJRk65RJgGyBfdqkFh2ZSUFBaWKauH4xC0N65E8nSNYakPjrktl5yoP3zumiCfmDOxNbhv2roXYlEhxGfzQN7XzXyFP1pvxB+MI4+NbLkTYdDKOZ5WzMYpFHrkf4Fok4iOEx5mI6VfrdryggSLHUrz+HgHhaSiLgOXYk8jDl2szRFAzJpvDa+WXGPsLdr6EPG08OHpv8aIeRd6auMJDu8nEcjQ+0Ejt2TptkRTYtv29r3VhDJa42vNI/5g+NTQ3XaQiOwGp6NMctgMWGjPAyfDMuOEMlABGlmc8IvKLTJklNwIDAQAB",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{829ece8c-31c5-4987-8442-09d2d5608f47}",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "unlimitedStorage",
+    "clipboardWrite",
+    "nativeMessaging",
+    "contextMenus",
+    "webNavigation",
+    "favicon"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_title": "DomTack: pick an element",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "commands": {
+    "pick": {
+      "suggested_key": {
+        "default": "Alt+Shift+T"
+      },
+      "description": "Pick an element to pin"
+    }
+  }
+}
