@@ -6,9 +6,11 @@ Works in nested iframes (cross-origin included) and in rrweb replays.
 
 ## Install
 
-1. Browser extension, from `extension/`:
-   - Chrome, Chromium, Edge, Brave: `chrome://extensions` → developer mode → *Load unpacked*. For `file://` pages, enable *Allow access to file URLs* in the extension's details.
-   - Firefox (140+): `npx web-ext run -s extension` (temporary profile, reloads on change), or `about:debugging` → *Load Temporary Add-on* → `extension/manifest.json`.
+1. Browser extension:
+   - Firefox (140+): [addons.mozilla.org/firefox/addon/domtack](https://addons.mozilla.org/firefox/addon/domtack/).
+   - From source, `extension/`:
+     - Chrome, Chromium, Edge, Brave: `chrome://extensions` → developer mode → *Load unpacked*. For `file://` pages, enable *Allow access to file URLs* in the extension's details.
+     - Firefox: `npx web-ext run -s extension` (temporary profile, reloads on change), or `about:debugging` → *Load Temporary Add-on* → `extension/manifest.json`.
 2. Optional: `npx domtack install` registers the native host with your installed browsers (manifest files on Linux/macOS, `HKCU` registry keys on Windows) and, when `~/.claude` exists, a Claude Code skill. Re-run it after updating domtack or switching Node versions; `npx domtack uninstall` undoes it.
 
 ## Use

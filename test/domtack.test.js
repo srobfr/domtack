@@ -142,7 +142,7 @@ test('install registers existing browsers with a launcher that resists shell inj
   const res = spawnSync(process.execPath, [SCRIPT, 'install'], { env: ienv, encoding: 'utf8', cwd: home });
   assert.strictEqual(res.status, 0, res.stderr);
   const chrome = JSON.parse(fs.readFileSync(path.join(chromeHosts, 'domtack.json'), 'utf8'));
-  assert.deepStrictEqual(chrome.allowed_origins, ['chrome-extension://ddnjaeehjpdphfknkcndpmoeifclnfdh/']);
+  assert.deepStrictEqual(chrome.allowed_origins, ['chrome-extension://manaceekiniaddocbocgkmalpfbikaec/', 'chrome-extension://ddnjaeehjpdphfknkcndpmoeifclnfdh/']);
   assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(firefoxHosts, 'domtack.json'), 'utf8')).allowed_extensions, ['{829ece8c-31c5-4987-8442-09d2d5608f47}']);
   assert.ok(!fs.existsSync(path.join(home, '.config', 'google-chrome')), 'browsers that are not installed are left alone');
   assert.match(fs.readFileSync(path.join(home, '.claude', 'skills', 'domtack', 'SKILL.md'), 'utf8'), /domtack\.js' domtack:xxxxxxxx/);

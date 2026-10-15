@@ -9,7 +9,7 @@ const { execFileSync } = require('child_process');
 
 const VERSION = '0.1.0';
 const HOST_NAME = 'domtack';
-const CHROME_IDS = ['ddnjaeehjpdphfknkcndpmoeifclnfdh']; // add the Chrome Web Store id once published
+const CHROME_IDS = ['manaceekiniaddocbocgkmalpfbikaec', 'ddnjaeehjpdphfknkcndpmoeifclnfdh']; // Chrome Web Store, then the unpacked dev build (manifest key)
 const FIREFOX_ID = '{829ece8c-31c5-4987-8442-09d2d5608f47}';
 const MAX_MESSAGE = 64 * 1024 * 1024; // Chrome's own cap on messages to a host
 const ID = /^(?:domtack:)?([a-z2-7]{8})$/;
