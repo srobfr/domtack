@@ -7,7 +7,7 @@ const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 const HOST_NAME = 'domtack';
 const CHROME_IDS = ['manaceekiniaddocbocgkmalpfbikaec', 'ddnjaeehjpdphfknkcndpmoeifclnfdh']; // Chrome Web Store, then the unpacked dev build (manifest key)
 const FIREFOX_ID = '{829ece8c-31c5-4987-8442-09d2d5608f47}';
@@ -216,6 +216,8 @@ const POSIX_BROWSERS = process.platform === 'darwin' ? {
   chrome: [['google-chrome', 'chromium', 'microsoft-edge', 'BraveSoftware/Brave-Browser'].map(d => path.join(home, '.config', d)), 'NativeMessagingHosts'],
   firefox: [[path.join(home, '.mozilla')], 'native-messaging-hosts'],
 };
+// Firefox keeps its profiles elsewhere, so a fresh install may lack the native hosts dir's parent: Firefox's profiles dir counts too.
+const FIREFOX_PROFILES = process.platform === 'darwin' ? path.join(appSupport, 'Firefox') : path.join(home, '.config', 'mozilla');
 const WIN_KEYS = {
   chrome: ['Google\\Chrome', 'Chromium', 'Microsoft\\Edge', 'BraveSoftware\\Brave-Browser'],
   firefox: ['Mozilla'],
@@ -259,6 +261,7 @@ function install() {
       }
     } else {
       const [configDirs, sub] = POSIX_BROWSERS[kind];
+      if (kind === 'firefox' && fs.existsSync(FIREFOX_PROFILES)) fs.mkdirSync(configDirs[0], { recursive: true });
       for (const configDir of configDirs.filter(d => fs.existsSync(d))) {
         const hostsDir = path.join(configDir, sub);
         fs.mkdirSync(hostsDir, { recursive: true });

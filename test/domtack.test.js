@@ -123,6 +123,16 @@ test('list returns the most recent tacks first', () => {
   assert.deepStrictEqual(list.tacks.map(t => t.id), ['domtack:newnewne', 'domtack:abcd2345']);
 });
 
+test('install registers a fresh Firefox, whose profiles dir is not the native hosts dir\'s parent', { skip: !['linux', 'darwin'].includes(process.platform) }, () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'domtack-home-'));
+  const linux = process.platform === 'linux';
+  const appSupport = path.join(home, 'Library', 'Application Support');
+  fs.mkdirSync(linux ? path.join(home, '.config', 'mozilla', 'firefox') : path.join(appSupport, 'Firefox', 'Profiles'), { recursive: true });
+  const res = spawnSync(process.execPath, [SCRIPT, 'install'], { env: { ...process.env, HOME: home, DOMTACK_DIR: path.join(home, 'store') }, encoding: 'utf8' });
+  assert.strictEqual(res.status, 0, res.stderr);
+  assert.ok(fs.existsSync(linux ? path.join(home, '.mozilla', 'native-messaging-hosts', 'domtack.json') : path.join(appSupport, 'Mozilla', 'NativeMessagingHosts', 'domtack.json')));
+});
+
 test('unknown commands fail', () => {
   assert.strictEqual(cli('frobnicate').status, 1);
   assert.strictEqual(cli('domtack:../../x').status, 1);

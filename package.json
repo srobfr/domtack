@@ -1,6 +1,6 @@
 {
   "name": "domtack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Pin any element of a web page for your coding agent: screenshot, selector, HTML and context. CLI, MCP server and native host for the DomTack browser extension.",
   "keywords": [
     "browser-extension",
