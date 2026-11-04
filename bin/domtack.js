@@ -7,7 +7,7 @@ const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const VERSION = '0.1.1';
+const VERSION = '0.1.2';
 const HOST_NAME = 'domtack';
 const CHROME_IDS = ['manaceekiniaddocbocgkmalpfbikaec', 'ddnjaeehjpdphfknkcndpmoeifclnfdh']; // Chrome Web Store, then the unpacked dev build (manifest key)
 const FIREFOX_ID = '{829ece8c-31c5-4987-8442-09d2d5608f47}';

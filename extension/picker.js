@@ -86,7 +86,9 @@
       .then(r => { if (r.error) throw new Error(r.error); return r; });
     const item = p => new ClipboardItem({
       'text/plain': p.then(r => new Blob([r.clip], { type: 'text/plain' })),
-      'image/png': p.then(r => new Blob([Uint8Array.fromBase64(r.png)], { type: 'image/png' })),
+      'image/png': p.then(r => new Blob([Uint8Array.from(atob(r.png), c => c.charCodeAt(0))], { type: 'image/png' })),
+      // Rich editors take the HTML: the image alone, with the reference kept in its alt text for whoever reads the HTML.
+      'text/html': p.then(r => new Blob([`<img src="data:image/png;base64,${r.png}" alt="${r.clip.replace(/[&"<>]/g, c => `&#${c.charCodeAt(0)};`)}">`], { type: 'text/html' })),
     });
     // Write while the click's user activation is live; values resolve later.
     navigator.clipboard.write([item(result)])

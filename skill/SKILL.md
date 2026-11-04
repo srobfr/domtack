@@ -7,6 +7,8 @@ description: Resolve a DomTack id (domtack:xxxxxxxx) to the web page element the
 
 A `domtack:xxxxxxxx` id in a message points to an element the user pinned in their browser.
 
+Pasted into a rich editor, the id is the alt text of the element's screenshot: `<img alt="domtack:xxxxxxxx">` in HTML, `![domtack:xxxxxxxx](…)` in Markdown.
+
 Resolve it:
 
 ```bash

@@ -34,7 +34,9 @@ function toast(before, id = '', after = '') {
 async function copy(entry, what) {
   const item = {};
   if (what !== 'image') item['text/plain'] = new Blob([entry.clip ?? entry.id], { type: 'text/plain' });
-  if (what !== 'id') item['image/png'] = new Blob([Uint8Array.fromBase64(entry.png)], { type: 'image/png' });
+  if (what !== 'id') item['image/png'] = new Blob([Uint8Array.from(atob(entry.png), c => c.charCodeAt(0))], { type: 'image/png' });
+  // As the picker does: rich editors show the image only, the reference stays in its alt text.
+  if (what === 'both') item['text/html'] = new Blob([`<img src="data:image/png;base64,${entry.png}" alt="${(entry.clip ?? entry.id).replace(/[&"<>]/g, c => `&#${c.charCodeAt(0)};`)}">`], { type: 'text/html' });
   try {
     await navigator.clipboard.write([new ClipboardItem(item)]);
   } catch (e) {

@@ -1,6 +1,6 @@
 # DomTack
 
-Pin any element of a web page for your coding agent. Click the DomTack icon, click an element: its screenshot (`image/png`) and a `domtack:xxxxxxxx` id (`text/plain`) go to the clipboard. Terminals paste the id; rich editors paste the image. The agent resolves the id to the element's full context with the `domtack` CLI.
+Pin any element of a web page for your coding agent. Click the DomTack icon, click an element: its screenshot (`image/png`), a `domtack:xxxxxxxx` id (`text/plain`) and both as HTML (`text/html`, the image with the id as its alt text) go to the clipboard. Terminals paste the id; rich editors paste the image alone, which keeps the id in its HTML. The agent resolves the id to the element's full context with the `domtack` CLI.
 
 Works in nested iframes (cross-origin included) and in rrweb replays.
 

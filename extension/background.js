@@ -3,13 +3,14 @@ const newId = () => 'domtack:' + [...crypto.getRandomValues(new Uint8Array(8))].
 
 async function pick(tab) {
   tab ??= (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
-  await chrome.action.setBadgeText({ text: '' });
-  await chrome.action.setTitle({ title: 'DomTack: pick an element' });
+  // Per tab: the browser drops these on the tab's next navigation, and other tabs keep the default.
+  await chrome.action.setBadgeText({ tabId: tab.id, text: '' });
+  await chrome.action.setTitle({ tabId: tab.id, title: 'DomTack: pick an element' });
   try {
     await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, files: ['picker.js'] });
   } catch (e) {
-    await chrome.action.setBadgeText({ text: '!' });
-    await chrome.action.setTitle({ title: `DomTack can't pick in this tab: ${e.message}` });
+    await chrome.action.setBadgeText({ tabId: tab.id, text: '!' });
+    await chrome.action.setTitle({ tabId: tab.id, title: `DomTack can't pick in this tab: ${e.message}` });
   }
 }
 
@@ -23,8 +24,15 @@ async function crop(dataUrl, rect, viewportWidth) {
   const canvas = new OffscreenCanvas(Math.max(1, Math.round(width)), Math.max(1, Math.round(height)));
   canvas.getContext('2d').drawImage(bmp, left, top, width, height, 0, 0, canvas.width, canvas.height);
   const blob = await canvas.convertToBlob({ type: 'image/png' });
-  return new Uint8Array(await blob.arrayBuffer()).toBase64();
+  return toBase64(new Uint8Array(await blob.arrayBuffer()));
 }
+
+// Uint8Array.prototype.toBase64 is missing from older Chrome; btoa takes a binary string, built in chunks to stay under the argument limit.
+const toBase64 = bytes => {
+  let binary = '';
+  for (let at = 0; at < bytes.length; at += 0x8000) binary += String.fromCharCode(...bytes.subarray(at, at + 0x8000));
+  return btoa(binary);
+};
 
 const clamp = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
 // A fence longer than any backtick run in the value, so page data cannot close it.
@@ -59,7 +67,7 @@ async function faviconData(tab) {
     url.searchParams.set('pageUrl', tab.url);
     url.searchParams.set('size', '32');
     // _favicon/ always returns PNG bytes, whatever content type it reports.
-    return `data:image/png;base64,${new Uint8Array(await (await fetch(url)).arrayBuffer()).toBase64()}`;
+    return `data:image/png;base64,${toBase64(new Uint8Array(await (await fetch(url)).arrayBuffer()))}`;
   } catch {
     return undefined;
   }
