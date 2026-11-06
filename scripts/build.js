@@ -18,11 +18,13 @@ if (manifest.version !== version) throw new Error(`extension ${manifest.version}
 const variants = {
   chrome: manifestCopy => {
     delete manifestCopy.browser_specific_settings;
+    delete manifestCopy.sidebar_action;
     manifestCopy.background = { service_worker: manifestCopy.background.service_worker };
     return manifestCopy;
   },
   firefox: manifestCopy => {
-    manifestCopy.permissions = manifestCopy.permissions.filter(permission => permission !== 'favicon'); // Chrome-only
+    manifestCopy.permissions = manifestCopy.permissions.filter(permission => !['favicon', 'sidePanel'].includes(permission)); // Chrome-only
+    delete manifestCopy.side_panel;
     manifestCopy.background = { scripts: manifestCopy.background.scripts };
     return manifestCopy;
   },

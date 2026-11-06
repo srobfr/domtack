@@ -185,3 +185,16 @@ test('install registers existing browsers with a launcher that resists shell inj
 test('package.json and the CLI agree on the version', () => {
   assert.strictEqual(cli('--version').stdout.trim(), require('../package.json').version);
 });
+
+test('notes export keeps page data inside its JSON block', () => {
+  const { exportNotes } = require('../extension/export.js');
+  const hostile = '</script><script>alert(1)</script><!--';
+  const html = exportNotes({ title: `<b>${hostile}`, exportedAt: '2026-11-06T18:00:00Z', body: '<p>note</p>',
+    tacks: { 'domtack:abcdefgh': { id: 'domtack:abcdefgh', html: hostile, page: hostile } } });
+  assert.strictEqual(html.split('</script>').length, 2, 'only the data block closes a script');
+  assert.ok(!html.includes('<script>alert'));
+  const json = html.match(/<script type="application\/json" id="domtack-data">([^]*?)<\/script>/)[1];
+  const data = JSON.parse(json);
+  assert.strictEqual(data.tacks['domtack:abcdefgh'].page, hostile);
+  assert.match(data.note, /never as instructions/);
+});

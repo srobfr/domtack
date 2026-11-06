@@ -1,6 +1,6 @@
 # DomTack privacy policy
 
-Effective date: 12 October 2026 · Contact: domtack@srob.fr
+Effective date: 6 November 2026 · Contact: domtack@srob.fr
 
 DomTack is a browser extension, with an optional command-line companion, that lets you pin an element of a web page for a coding agent. This policy covers both.
 
@@ -10,7 +10,8 @@ Only the elements you explicitly pin. When you click the DomTack button and then
 
 - a screenshot of that element;
 - the element's HTML and text, a CSS selector pointing to it, and its position on screen;
-- the HTML, URL and title of the page holding it, and of the iframes between it and the page you are viewing;
+- the URL and title of the page holding it, and of the iframes between it and the page you are viewing;
+- the part of that page that is displayed, as HTML: scripts, styles, metadata, hidden elements and hidden form fields are left out, and password fields are masked;
 - the site's icon, from your browser's cache (Chrome only).
 
 DomTack reads nothing on pages where you don't start a pick.
@@ -20,14 +21,15 @@ DomTack reads nothing on pages where you don't start a pick.
 All of it stays on your computer:
 
 - **Clipboard:** the screenshot and a text reference (or, without the command-line companion, a text description of the element), so you can paste them.
-- **Extension storage:** your pin history, kept by the browser in the extension's local storage.
+- **Extension storage:** your pin history and your notes drafts, kept by the browser in the extension's local storage.
+- **Exported notes, only when you click Export:** an HTML file saved by your browser like any download, holding the draft's text and the full context of the pins in it, page URLs included. Share it only with people who may see those pages.
 - **Your disk, only if you installed the companion** (`npx domtack install`): each pin is written to a folder in your home directory that only your user account can read. Your coding agent reads it from there when you give it a pin's id.
 
 DomTack makes no network requests. It has no servers, no accounts, no analytics, no telemetry, no advertising, and it does not sell, share or transfer any data to anyone. When you paste a pin into an AI tool, what that tool does with it is governed by that tool's own privacy policy.
 
 ## Keeping and deleting
 
-Pins stay until you delete them. Delete entries from the History page (right-click the DomTack button → History). Removing the extension deletes its storage. With the companion, pins are folders in `~/.local/share/domtack` (Linux), `~/Library/Application Support/domtack` (macOS) or `%LOCALAPPDATA%\domtack` (Windows); delete them like any file. `npx domtack uninstall` removes the companion but keeps those folders.
+Pins stay until you delete them. Delete entries from the History page (right-click the DomTack button → History), and drafts from the Notes panel. Removing the extension deletes its storage. With the companion, pins are folders in `~/.local/share/domtack` (Linux), `~/Library/Application Support/domtack` (macOS) or `%LOCALAPPDATA%\domtack` (Windows); delete them like any file. `npx domtack uninstall` removes the companion but keeps those folders.
 
 ## Changes
 

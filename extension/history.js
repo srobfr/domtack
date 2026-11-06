@@ -127,5 +127,5 @@ search.addEventListener('keydown', e => { if (e.key === 'Escape') { search.value
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement !== search) { e.preventDefault(); search.focus(); }
 });
-chrome.storage.onChanged.addListener(load);
+chrome.storage.onChanged.addListener(changes => { if (Object.keys(changes).some(key => key.startsWith('domtack:'))) load(); }); // not on notes saves
 load();

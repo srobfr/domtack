@@ -37,6 +37,7 @@ In browsers driven by Playwright, each pin also records which `playwright-cli` s
 - Open source (MIT): https://github.com/srobfr/domtack
 
 **Also**
+- Notes: right-click the button, then Notes. Write in a side panel, pick elements into it, keep several drafts, and export one as a single HTML file a colleague or an agent can read on another computer, with every pinned element's context inside.
 - History of your pins: right-click the button, then History. Search, copy again, delete.
 - Keyboard shortcut: Alt+Shift+T. Esc cancels.
 
@@ -60,6 +61,7 @@ Dans les navigateurs pilotés par Playwright, chaque épingle note aussi la sess
 - Open source (MIT) : https://github.com/srobfr/domtack
 
 **Aussi**
+- Notes : clic droit sur le bouton, puis Notes. Écrivez dans un panneau latéral, épinglez-y des éléments, gardez plusieurs brouillons, et exportez-en un en un seul fichier HTML, lisible par un collègue ou un agent sur un autre ordinateur, avec le contexte de chaque élément épinglé.
 - Historique de vos épingles : clic droit sur le bouton, puis History. Recherche, nouvelle copie, suppression.
 - Raccourci clavier : Alt+Maj+T. Échap pour annuler.
 

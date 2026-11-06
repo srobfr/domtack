@@ -46,6 +46,38 @@
 
   const isFrame = el => el.localName === 'iframe' || el.localName === 'frame';
 
+  // What the user sees, as HTML: rendered elements only (no scripts, styles, metadata, comments, hidden or collapsed
+  // nodes), form fields with their current values (passwords masked), open shadow roots inlined, no event handlers.
+  // ponytail: a visible child under a visibility:hidden parent is dropped with it; rare, add a per-child check if needed.
+  const DROPPED = new Set(['script', 'style', 'noscript', 'template', 'link', 'meta', 'base', 'head']);
+  const VOID = new Set(['area', 'br', 'col', 'embed', 'hr', 'img', 'input', 'source', 'track', 'wbr']);
+  const escapeHtml = (s, attribute) => s.replace(attribute ? /[&"<>]/g : /[&<>]/g, c => `&#${c.charCodeAt(0)};`);
+  const shown = el => el.checkVisibility({ visibilityProperty: true }) || getComputedStyle(el).display === 'contents';
+  const visibleHtml = root => {
+    const out = [];
+    const walk = node => {
+      if (node.nodeType === Node.TEXT_NODE) return out.push(escapeHtml(node.data));
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      const name = node.localName;
+      if (DROPPED.has(name) || !shown(node)) return;
+      const typed = name === 'input' && !['checkbox', 'radio', 'button', 'submit', 'reset', 'image', 'file'].includes(node.type);
+      const attributes = [...node.attributes].filter(a => !(a.name.startsWith('on') && (node[a.name] === null || typeof node[a.name] === 'function'))
+        && !['style', 'nonce', 'integrity', 'checked', 'selected'].includes(a.name) && !(typed && a.name === 'value'));
+      out.push('<' + name, ...attributes.map(a => ` ${a.name}="${escapeHtml(a.value.startsWith('data:') && a.value.length > 200 ? a.value.slice(0, 40) + '…' : a.value, true)}"`));
+      if (typed) out.push(` value="${escapeHtml(node.type === 'password' ? '•'.repeat(node.value.length) : node.value, true)}"`);
+      if (node.checked || node.selected) out.push(node.checked ? ' checked' : ' selected');
+      out.push('>');
+      if (VOID.has(name)) return;
+      if (node.shadowRoot) { out.push('<template shadowrootmode="open">'); node.shadowRoot.childNodes.forEach(walk); out.push('</template>'); }
+      if (name === 'textarea') out.push(escapeHtml(node.value));
+      else if (name === 'select') [...node.selectedOptions].forEach(o => out.push(`<option selected>${escapeHtml(o.text)}</option>`)); // closed list: only the choice shows
+      else node.childNodes.forEach(walk);
+      out.push(`</${name}>`);
+    };
+    walk(root);
+    return out.join('');
+  };
+
   const onMove = e => {
     if (!e.isTrusted || e.target === target) return;
     target = e.target;
@@ -83,7 +115,7 @@
     // Two frames so the removed overlays are painted out before the capture.
     const result = new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)))
       .then(() => chrome.runtime.sendMessage({ type: 'tack', nonce, hops, viewport }))
-      .then(r => { if (r.error) throw new Error(r.error); return r; });
+      .then(r => { if (!r?.png) throw new Error(r?.error ?? 'no answer from the extension'); return r; });
     const item = p => new ClipboardItem({
       'text/plain': p.then(r => new Blob([r.clip], { type: 'text/plain' })),
       'image/png': p.then(r => new Blob([Uint8Array.from(atob(r.png), c => c.charCodeAt(0))], { type: 'image/png' })),
@@ -111,8 +143,8 @@
       selector: selectorOf(el),
       rect: clip(el.getBoundingClientRect().toJSON()),
       text: el.innerText ?? el.textContent,
-      html: el.outerHTML,
-      page: document.documentElement.outerHTML,
+      html: visibleHtml(el),
+      page: '<!doctype html>' + visibleHtml(document.documentElement),
     } }).catch(() => {});
     forward(nonce, 0);
   };

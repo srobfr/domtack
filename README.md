@@ -4,10 +4,13 @@ Pin any element of a web page for your coding agent. Click the DomTack icon, cli
 
 Works in nested iframes (cross-origin included) and in rrweb replays.
 
+**Get it:** [Chrome Web Store](https://chromewebstore.google.com/detail/domtack/manaceekiniaddocbocgkmalpfbikaec) (Chrome, Edge, Brave and other Chromium browsers) · [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/domtack/) (Firefox 140+)
+
 ## Install
 
 1. Browser extension:
-   - Firefox (140+): [addons.mozilla.org/firefox/addon/domtack](https://addons.mozilla.org/firefox/addon/domtack/).
+   - Chrome, Edge, Brave and other Chromium browsers: [Chrome Web Store](https://chromewebstore.google.com/detail/domtack/manaceekiniaddocbocgkmalpfbikaec).
+   - Firefox (140+): [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/domtack/).
    - From source, `extension/`:
      - Chrome, Chromium, Edge, Brave: `chrome://extensions` → developer mode → *Load unpacked*. For `file://` pages, enable *Allow access to file URLs* in the extension's details.
      - Firefox: `npx web-ext run -s extension` (temporary profile, reloads on change), or `about:debugging` → *Load Temporary Add-on* → `extension/manifest.json`.
@@ -16,6 +19,8 @@ Works in nested iframes (cross-origin included) and in rrweb replays.
 ## Use
 
 Click the toolbar icon (or `Alt+Shift+T`, rebindable at `chrome://extensions/shortcuts`) → hover → click. `Esc` cancels. Right-click the icon → *History* lists past tacks; click one to copy it again.
+
+Right-click the icon → *Notes* opens a side panel (the sidebar in Firefox) for writing about several elements at once: text with tacks inline, as their screenshots. *Pick* in the panel puts the next tack at the cursor; pasting a tack id (or the standalone clipboard text) does too. Drafts are kept in the browser, several at a time. *Export* downloads a draft as one self-contained HTML file: the notes for people, and in `<script type="application/json" id="domtack-data">` every tack's context for agents, keyed by id. The file needs nothing else, so a colleague or an agent on another machine, without the companion, can read it.
 
 ```
 domtack <id>        print a tack as JSON
@@ -29,7 +34,7 @@ With the native host, each tack is stored in `<store>/<8 chars>/`, where `<store
 
 - `shot.png`: the element's screenshot.
 - `context.json`: URL, title, selector, rect, viewport, element HTML and text, `frames` (the iframe path when the element is inside iframes), and the originating browser process (pid, name, and the `playwright-cli` session name when one drives the browser).
-- `page.html`: the document holding the element.
+- `page.html`: the document holding the element, as displayed: scripts, styles, metadata, comments, hidden elements and event handlers are left out, form fields keep their current values (passwords masked), open shadow roots are inlined.
 
 Page content is untrusted: the CLI, MCP tool and skill tell agents to treat it as data.
 

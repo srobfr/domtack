@@ -1,8 +1,12 @@
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz234567';
 const newId = () => 'domtack:' + [...crypto.getRandomValues(new Uint8Array(8))].map(b => ALPHABET[b & 31]).join('');
 
-async function pick(tab) {
+// The tab whose pick the notes panel's Pick button started: that tack goes into the draft. Icon and shortcut picks don't.
+let pickForNotes = null;
+
+async function pick(tab, forNotes = false) {
   tab ??= (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+  pickForNotes = forNotes ? tab.id : null;
   // Per tab: the browser drops these on the tab's next navigation, and other tabs keep the default.
   await chrome.action.setBadgeText({ tabId: tab.id, text: '' });
   await chrome.action.setTitle({ tabId: tab.id, title: 'DomTack: pick an element' });
@@ -33,6 +37,9 @@ const toBase64 = bytes => {
   for (let at = 0; at < bytes.length; at += 0x8000) binary += String.fromCharCode(...bytes.subarray(at, at + 0x8000));
   return btoa(binary);
 };
+
+// The page snapshot is kept gzipped: history loads every entry at once.
+const gzip = async text => toBase64(new Uint8Array(await new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer()));
 
 const clamp = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
 // A fence longer than any backtick run in the value, so page data cannot close it.
@@ -88,10 +95,16 @@ async function tack(ctx, tab) {
     console.debug('domtack native host unavailable, standalone mode:', e.message); // not an error: the npm CLI is optional
   }
   const clip = saved ? id : describe(ctx, id);
+  // The full context stays in the browser too, so notes can be exported on a machine without the native host.
   await chrome.storage.local.set({ [id]: {
     id, url: ctx.url, title: ctx.title, favicon: await faviconData(tab), createdAt, png, saved, clip,
-    selector: ctx.selector, text: ctx.text.slice(0, 500),
+    selector: ctx.selector, text: ctx.text.slice(0, 20000), html: ctx.html, frames: ctx.frames, rect: ctx.rect,
+    viewport: ctx.viewport, pageGz: await gzip(ctx.page),
   } });
+  if (pickForNotes === tab.id) {
+    pickForNotes = null;
+    chrome.runtime.sendMessage({ type: 'tacked', id, windowId: tab.windowId }).catch(() => {}); // the panel may be closed
+  }
   return { id, png, saved, clip };
 }
 
@@ -170,12 +183,16 @@ chrome.action.onClicked.addListener(tab => pick(tab));
 chrome.commands.onCommand.addListener((cmd, tab) => cmd === 'pick' && pick(tab));
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({ id: 'history', title: 'History', contexts: ['action'] });
+  chrome.contextMenus.create({ id: 'notes', title: 'Notes', contexts: ['action'] });
 });
-chrome.contextMenus.onClicked.addListener(info => {
+chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'history') chrome.tabs.create({ url: 'history.html' });
+  // Chrome's side panel, Firefox's sidebar: both show notes.html.
+  if (info.menuItemId === 'notes') chrome.sidePanel ? chrome.sidePanel.open({ windowId: tab.windowId }) : chrome.sidebarAction.open();
 });
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-  if (!sender.tab) return; // only content scripts send these
+  if (msg.type === 'pick' && sender.url?.startsWith(chrome.runtime.getURL(''))) return void pick(undefined, true); // the notes panel's Pick button
+  if (!sender.tab) return; // below, only content scripts
   if (msg.type === 'stop') chrome.tabs.sendMessage(sender.tab.id, { type: 'tack-stop' }).catch(() => {});
   if (msg.type === 'part') addPart(msg, sender);
   if (msg.type === 'known') known(msg.nonce, sender).then(reply);

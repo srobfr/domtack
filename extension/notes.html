@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DomTack notes</title>
+<link rel="icon" href="icons/icon.svg">
+<style>
+  :root {
+    --bg: #f8f7f5; --surface: #fff; --sunken: #f1efec; --line: #e4e1dc;
+    --text: #1f1d1a; --muted: #6f6a63; --faint: #9a948b;
+    --accent: #e8590c; --accent-soft: #fff1e6; --accent-text: #b8470a; --danger: #c92a2a;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #171614; --surface: #211f1c; --sunken: #2a2824; --line: #35322d;
+      --text: #ece9e4; --muted: #a39d94; --faint: #7a746b;
+      --accent: #ff7a2e; --accent-soft: #3a2416; --accent-text: #ffa36b; --danger: #ff6b6b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  [hidden] { display: none !important; }
+
+  header { padding: 10px 12px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; background: var(--bg); }
+  .row { display: flex; gap: 6px; align-items: center; }
+  select, input { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; min-width: 0; }
+  select { flex: 1; }
+  #title { flex: 1; font-weight: 600; font-size: 15px; border-color: transparent; background: transparent; padding-left: 4px; }
+  #title:hover { border-color: var(--line); }
+  select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px; border-radius: 7px; color: var(--muted); white-space: nowrap; }
+  button:hover { background: var(--sunken); color: var(--text); }
+  button:focus-visible { outline: 2px solid var(--accent); }
+  .primary { background: var(--accent); color: #fff; font-weight: 600; padding: 0 12px; }
+  .primary:hover { background: var(--accent); color: #fff; filter: brightness(1.08); }
+  .danger.armed { background: var(--danger); color: #fff; }
+  .danger.armed::after { content: "Delete?"; }
+  .hint { color: var(--faint); font-size: 12px; margin-left: auto; }
+
+  #editor { flex: 1; overflow: auto; padding: 14px 16px 48px; outline: none; overflow-wrap: anywhere; }
+  #editor:empty::before { content: "Type your notes. Pick elements with the button above, or paste a tack id: each capture lands at the cursor."; color: var(--faint); }
+  img.tack { max-width: 100%; vertical-align: middle; margin: 2px 3px; border-radius: 3px; box-shadow: 0 0 0 1px var(--line); background: #fff; }
+
+  .toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); padding: 8px 12px; border-radius: 9px; background: var(--text); color: var(--bg); font-size: 13px; }
+</style>
+
+<header>
+  <div class="row">
+    <select id="doc" aria-label="Draft"></select>
+    <button data-action="new" title="New draft" aria-label="New draft"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="danger" data-action="delete" title="Delete this draft" aria-label="Delete this draft"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+  </div>
+  <div class="row"><input id="title" aria-label="Title" maxlength="200"></div>
+  <div class="row">
+    <button class="primary" data-action="pick" title="Pick an element on the page (Alt+Shift+T)"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 2.5a1 1 0 0 1 1.4 0l4.6 4.6a1 1 0 0 1 0 1.4l-1.2 1.2a1 1 0 0 1-1.1.2l-3.3 3.3.3 3.6a1 1 0 0 1-.3.8l-1.3 1.3a1 1 0 0 1-1.4 0L9.6 15.3l-5.4 5.4a.9.9 0 0 1-1.3-1.3l5.4-5.4-3.6-3.6a1 1 0 0 1 0-1.4L6 7.7a1 1 0 0 1 .8-.3l3.6.3 3.3-3.3a1 1 0 0 1 .2-1.1z"/></svg>Pick</button>
+    <button data-action="export" title="Download as one HTML file with every tack's context, for a colleague or an agent"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Export</button>
+    <span class="hint">Alt+Shift+T</span>
+  </div>
+</header>
+
+<div id="editor" contenteditable="true" spellcheck="true" aria-label="Notes"></div>
+<div class="toast" role="status" hidden></div>
+
+<script src="export.js"></script>
+<script src="notes.js"></script>
+</html>
