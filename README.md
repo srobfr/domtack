@@ -18,7 +18,7 @@ Works in nested iframes (cross-origin included) and in rrweb replays.
 
 ## Use
 
-Click the toolbar icon (or `Alt+Shift+T`, rebindable at `chrome://extensions/shortcuts`) → hover → click. `Esc` cancels. Right-click the icon → *History* lists past tacks; click one to copy it again.
+Click the toolbar icon (or `Alt+Shift+T`, rebindable at `chrome://extensions/shortcuts`) → hover → click. While hovering, the mouse wheel selects the parent element (up) or goes back down. `Esc` cancels. Right-click the icon → *History* lists past tacks; click one to copy it again.
 
 Right-click the icon → *Notes* opens a side panel (the sidebar in Firefox) for writing about several elements at once: text with tacks inline, as their screenshots. *Pick* in the panel puts the next tack at the cursor; pasting a tack id (or the standalone clipboard text) does too. Drafts are kept in the browser, several at a time. *Export* downloads a draft as one self-contained HTML file: the notes for people, and in `<script type="application/json" id="domtack-data">` every tack's context for agents, keyed by id. The file needs nothing else, so a colleague or an agent on another machine, without the companion, can read it.
 

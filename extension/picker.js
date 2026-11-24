@@ -9,6 +9,10 @@
   const BOX = 'all:initial;position:fixed;z-index:2147483647;pointer-events:none;';
   const overlay = document.createElement('div');
   overlay.style.cssText = BOX + 'display:none;outline:2px solid #e8590c;background:rgba(232,89,12,.12);';
+  // Names the outlined element, so stepping between same-sized ancestors with the wheel shows where it is.
+  const label = document.createElement('div');
+  label.style.cssText = 'all:initial;position:absolute;left:-2px;bottom:100%;padding:1px 5px;background:#e8590c;color:#fff;font:11px/16px ui-monospace,monospace;white-space:nowrap;';
+  overlay.append(label);
   document.documentElement.append(overlay);
   // Some pages make iframes ignore the mouse (rrweb replays set pointer-events: none); the frame's own picker needs it.
   // Set through CSSOM, which a page's CSP doesn't block, and restored on stop.
@@ -17,7 +21,8 @@
     f.style.setProperty('pointer-events', 'auto', 'important');
     return () => f.style.setProperty('pointer-events', ...saved);
   });
-  let target = null;
+  let target = null; // the element a click pins: the one under the cursor, or an ancestor chosen with the wheel
+  let hovered = null;
 
   const selectorOf = el => {
     const parts = [];
@@ -78,15 +83,35 @@
     return out.join('');
   };
 
-  const onMove = e => {
-    if (!e.isTrusted || e.target === target) return;
-    target = e.target;
+  const select = el => {
+    target = el;
     // Inside a frame, that frame's own picker draws the outline.
-    overlay.style.display = isFrame(target) ? 'none' : '';
-    const r = target.getBoundingClientRect();
+    overlay.style.display = isFrame(el) ? 'none' : '';
+    const r = el.getBoundingClientRect();
     Object.assign(overlay.style, { left: r.x + 'px', top: r.y + 'px', width: r.width + 'px', height: r.height + 'px' });
+    label.textContent = el.localName + (el.id ? '#' + el.id : '') + [...el.classList].slice(0, 2).map(c => '.' + c).join('');
   };
-  const onLeave = () => { overlay.style.display = 'none'; target = null; };
+  const onMove = e => {
+    if (!e.isTrusted || e.target === hovered) return;
+    hovered = e.target;
+    select(hovered);
+  };
+  const onLeave = () => { overlay.style.display = 'none'; target = hovered = null; };
+
+  // The wheel walks the element tree instead of scrolling: up to the parent, down back towards the hovered element.
+  let wheelDelta = 0;
+  const onWheel = e => {
+    if (!e.isTrusted || !target) return;
+    block(e);
+    wheelDelta += e.deltaY;
+    if (Math.abs(wheelDelta) < 40) return; // trackpads send many small deltas: one step per notch-sized amount
+    const up = wheelDelta < 0;
+    wheelDelta = 0;
+    if (up) return target !== document.body && target.parentElement && select(target.parentElement);
+    let child = hovered;
+    while (child && child.parentElement !== target) child = child.parentElement;
+    if (child) select(child);
+  };
 
   const block = e => { e.preventDefault(); e.stopImmediatePropagation(); };
 
@@ -94,6 +119,7 @@
 
   const stop = () => {
     removeEventListener('mousemove', onMove, true);
+    removeEventListener('wheel', onWheel, { capture: true });
     removeEventListener('keydown', onKey, true);
     for (const t of ['pointerdown', 'mousedown', 'pointerup', 'mouseup']) removeEventListener(t, block, true);
     removeEventListener('click', onClick, true);
@@ -136,7 +162,7 @@
     block(e);
     // Mouse clicks only: Enter or Space on an element the page focused also fires a trusted click, with detail 0.
     if (!e.isTrusted || e.detail < 1) return;
-    const el = e.target;
+    const el = target?.contains(e.target) ? target : e.target;
     const nonce = crypto.randomUUID();
     if (!isTop) stop();
     chrome.runtime.sendMessage({ type: 'part', nonce, hop: 0, url: location.href, title: document.title, ctx: {
@@ -168,6 +194,7 @@
   };
 
   addEventListener('mousemove', onMove, true);
+  addEventListener('wheel', onWheel, { capture: true, passive: false });
   addEventListener('keydown', onKey, true);
   for (const t of ['pointerdown', 'mousedown', 'pointerup', 'mouseup']) addEventListener(t, block, true);
   addEventListener('click', onClick, true);
